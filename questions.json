@@ -1,0 +1,41 @@
+{
+  "questions": [
+    {
+      "question": "What keyword is used to define a function in Python?",
+      "type": "multiple_choice",
+      "options": ["func", "define", "def", "function"],
+      "answer": "def",
+      "category": "Python Basics",
+      "difficulty": "easy"
+    },
+    {
+      "question": "A list in Python is immutable.",
+      "type": "true_false",
+      "answer": "false",
+      "category": "Data Structures",
+      "difficulty": "easy"
+    },
+    {
+      "question": "What built-in function returns the number of items in a list?",
+      "type": "short_answer",
+      "answer": "len",
+      "category": "Python Basics",
+      "difficulty": "easy"
+    },
+    {
+      "question": "What does OOP stand for?",
+      "type": "short_answer",
+      "answer": "object oriented programming",
+      "category": "Concepts",
+      "difficulty": "medium"
+    },
+    {
+      "question": "Which data structure uses FIFO?",
+      "type": "multiple_choice",
+      "options": ["Stack", "Queue", "Tree", "Graph"],
+      "answer": "Queue",
+      "category": "Data Structures",
+      "difficulty": "medium"
+    }
+  ]
+}
