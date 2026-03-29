@@ -4,11 +4,14 @@ import hmac
 import json
 import os
 import random
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 
-APP_SECRET = b"quiz-app-local-secret"
+LEGACY_APP_SECRET = b"quiz-app-local-secret"
+SECRET_ENV_VAR = "QUIZ_APP_SECRET"
+SECRET_FILE = ".quiz_app_secret"
 PBKDF2_ITERATIONS = 200_000
 
 
@@ -16,44 +19,110 @@ def project_path(filename: str) -> Path:
     return Path(__file__).resolve().parent / filename
 
 
+def _load_app_secret() -> bytes:
+    env_secret = os.getenv(SECRET_ENV_VAR, "").strip()
+    if env_secret:
+        return env_secret.encode("utf-8")
+
+    secret_path = project_path(SECRET_FILE)
+    if secret_path.exists():
+        try:
+            content = secret_path.read_text(encoding="utf-8").strip()
+            if content:
+                return content.encode("utf-8")
+        except OSError:
+            pass
+
+    generated_secret = base64.urlsafe_b64encode(os.urandom(32)).decode("utf-8")
+    try:
+        secret_path.write_text(generated_secret, encoding="utf-8")
+        try:
+            os.chmod(secret_path, 0o600)
+        except OSError:
+            pass
+    except OSError:
+        return LEGACY_APP_SECRET
+    return generated_secret.encode("utf-8")
+
+
 def _xor_bytes(raw: bytes, key: bytes) -> bytes:
     return bytes(byte ^ key[index % len(key)] for index, byte in enumerate(raw))
 
 
-def _derived_key() -> bytes:
-    return hashlib.sha256(APP_SECRET).digest()
+def _derived_key(secret: bytes) -> bytes:
+    return hashlib.sha256(secret).digest()
 
 
 def encode_data(payload: Any) -> str:
     serialized = json.dumps(payload, separators=(",", ":")).encode("utf-8")
-    encrypted = _xor_bytes(serialized, _derived_key())
+    encrypted = _xor_bytes(serialized, _derived_key(_load_app_secret()))
     return base64.urlsafe_b64encode(encrypted).decode("utf-8")
+
+
+def _decode_payload(encoded_text: str) -> tuple[bool, Any]:
+    try:
+        encrypted = base64.urlsafe_b64decode(encoded_text.encode("utf-8"))
+    except Exception:
+        return False, None
+
+    candidate_secrets = [_load_app_secret(), LEGACY_APP_SECRET]
+    for secret in candidate_secrets:
+        try:
+            serialized = _xor_bytes(encrypted, _derived_key(secret))
+            return True, json.loads(serialized.decode("utf-8"))
+        except Exception:
+            continue
+    return False, None
 
 
 def decode_data(encoded_text: str, default: Any) -> Any:
     if not encoded_text.strip():
         return default
-    try:
-        encrypted = base64.urlsafe_b64decode(encoded_text.encode("utf-8"))
-        serialized = _xor_bytes(encrypted, _derived_key())
-        return json.loads(serialized.decode("utf-8"))
-    except Exception:
+    ok, payload = _decode_payload(encoded_text)
+    if not ok:
         return default
+    return payload
 
 
 def save_secure_data(file_path: Path, payload: Any) -> None:
-    file_path.write_text(encode_data(payload), encoding="utf-8")
+    try:
+        file_path.write_text(encode_data(payload), encoding="utf-8")
+    except OSError as exc:
+        print(f"Could not save data to {file_path.name}: {exc}")
 
 
 def load_secure_data(file_path: Path, default: Any) -> Any:
     if not file_path.exists():
         save_secure_data(file_path, default)
         return default
-    encoded_text = file_path.read_text(encoding="utf-8")
-    loaded = decode_data(encoded_text, default)
-    if loaded == default and encoded_text.strip():
-        save_secure_data(file_path, default)
-    return loaded
+    try:
+        encoded_text = file_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        print(f"Could not read data from {file_path.name}: {exc}")
+        return default
+
+    if not encoded_text.strip():
+        return default
+
+    ok, payload = _decode_payload(encoded_text)
+    if ok:
+        return payload
+
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    backup_path = file_path.with_suffix(f"{file_path.suffix}.corrupt.{timestamp}")
+    try:
+        file_path.replace(backup_path)
+        print(
+            f"Warning: {file_path.name} is corrupted. Backup created as {backup_path.name}. "
+            "Starting with default data."
+        )
+    except OSError as exc:
+        print(
+            f"Warning: {file_path.name} appears corrupted and could not be backed up: {exc}. "
+            "Starting with default data."
+        )
+
+    return default
 
 
 def hash_password(password: str) -> str:

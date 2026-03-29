@@ -134,7 +134,8 @@ class QuizEngine:
                 options = question.get("options", [])
                 valid_labels = {chr(ord("A") + idx) for idx in range(len(options))}
                 if user_input.upper() not in valid_labels and user_input.lower() not in {str(option).lower() for option in options}:
-                    print("Invalid input. Please enter A, B, C, D or the option text.")
+                    label_list = ", ".join(sorted(valid_labels))
+                    print(f"Invalid input. Please enter one of {label_list} or the option text.")
                     continue
                 return user_input
 
@@ -191,11 +192,14 @@ class QuizEngine:
         averages = calculate_category_averages(user_records)
 
         category = input("Enter a category for stats: ").strip()
-        if category not in averages:
+        normalized_lookup = {name.casefold(): name for name in averages}
+        matched_category = normalized_lookup.get(category.casefold())
+
+        if matched_category is None:
             print("Take more quizes in this category for stats")
             return
 
-        print(f"Average percentage correct for {category}: {averages[category]:.2f}%")
+        print(f"Average percentage correct for {matched_category}: {averages[matched_category]:.2f}%")
 
     def run_quiz(self, category: str, question_count: int, difficulty: str) -> None:
         all_questions = self.load_questions()

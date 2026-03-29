@@ -44,9 +44,9 @@
     - Spec reference: `spec.md:61-65`  
     - Code evidence: total/percentage output in `quiz.py:235-236`; stats opt-in prompt in `quiz.py:240-247`; category average calculation in `utils.py:101-113` and display in `quiz.py:188-198`.
 
-12. [WARN] **AC #15 is only partially met: data is obfuscated/non-human-readable, but cryptographic security is weak.**  
+12. [WARN] **AC #15 is still only partially met: data is non-human-readable, but cryptographic strength remains limited.**  
     - Spec reference: `spec.md:69-70`  
-    - Code evidence: files are encoded/XOR-transformed in `utils.py:27-30` and `utils.py:44-56`, which makes content non-plain-text; however, encryption key is hardcoded (`utils.py:11`) and algorithm is reversible XOR (`utils.py:19-24`), so this should not be considered secure encryption.
+    - Code evidence: encoded/XOR-transformed storage is implemented in `utils.py` and now uses managed secrets (`QUIZ_APP_SECRET` or `.quiz_app_secret`) instead of only a hardcoded key; however, reversible XOR is still not strong encryption.
 
 13. [PASS] **AC #16: user can take another quiz or exit; subsequent quizzes reuse saved feedback data.**  
     - Spec reference: `spec.md:72-75`  
@@ -64,33 +64,33 @@
     - Spec reference: `spec.md:97-98`  
     - Code evidence: message `"Take more quizes in this category for stats"` in `quiz.py:195`.
 
-17. [WARN] **Potential logic bug: category stats lookup is case-sensitive and exact-match only.**  
-    - Impact: user may have history for `"Python Basics"` but entering `"python basics"` incorrectly reports no stats.  
-    - Code evidence: raw input check `if category not in averages` in `quiz.py:193-195`.
+17. [PASS] **Category stats lookup now handles case-insensitive input.**  
+    - Impact resolved: users can enter category names with different casing (e.g., `"python basics"`) and still retrieve stats.  
+    - Code evidence: casefold-based lookup map in `QuizEngine.display_category_stats` in `quiz.py`.
 
-18. [WARN] **Data integrity risk: corrupted encoded data silently resets to defaults.**  
-    - Impact: `users.dat`, `scores.dat`, or `feedback.dat` can be overwritten and prior data lost without warning.  
-    - Code evidence: when decode returns default and file is non-empty, file is overwritten in `utils.py:54-55`.
+18. [PASS] **Corrupted secure data no longer silently resets or overwrites files.**  
+    - Impact resolved: corrupted storage files are preserved via timestamped `.corrupt.*` backup and defaults are loaded safely.  
+    - Code evidence: corruption detection and `replace` backup flow in `load_secure_data` (`utils.py`).
 
-19. [WARN] **Missing file I/O exception handling on secure storage read/write paths.**  
-    - Impact: permission/disk errors can crash the app instead of showing actionable messages.  
-    - Code evidence: unguarded `write_text` in `utils.py:45`, `read_text` in `utils.py:52`, and JSON parse/decode pipeline in `utils.py:33-41` only handles decode exceptions, not read/write failures.
+19. [PASS] **Secure storage paths now handle file I/O exceptions.**  
+    - Impact resolved: permission/disk read-write failures are handled with user-visible messages instead of unhandled crashes.  
+    - Code evidence: guarded `write_text` in `save_secure_data` and guarded `read_text` in `load_secure_data` (`utils.py`).
 
-20. [WARN] **Security concern: no rate limiting or lockout on repeated failed logins.**  
-    - Impact: vulnerable to local brute-force attempts against usernames.  
-    - Code evidence: auth loop allows unlimited retries in `main.py:19-39`; no throttling logic in `auth.py`.
+20. [PASS] **Login now includes failed-attempt rate limiting with temporary lockout.**  
+    - Impact resolved: repeated failed logins for a username trigger lockout (5 attempts, 30 seconds), reducing brute-force risk.  
+    - Code evidence: `_failed_attempts`, `_lockout_until`, `_check_lockout`, and `_record_failed_attempt` in `auth.py`.
 
-21. [WARN] **Code quality issue: some user-facing text is hard-coded and slightly misleading/repetitive.**  
-    - Impact: maintenance/usability friction (e.g., fixed `A, B, C, D` text even if option count differs).  
-    - Code evidence: message in `quiz.py:137`; repeated literal prompts/messages across `main.py` and `quiz.py`.
+21. [PASS] **Misleading hard-coded multiple-choice input text has been corrected.**  
+    - Impact resolved: invalid-input guidance now dynamically reflects available option labels instead of fixed `A, B, C, D`.  
+    - Code evidence: dynamic `label_list` message generation in `QuizEngine._prompt_for_answer` in `quiz.py`.
 
 22. [PASS] **Hints feature from behavior description is implemented.**  
     - Spec reference: `spec.md:5` (hints mentioned in behavior description)  
     - Code evidence: `hint` command handling in `quiz.py:128-131` and hint generation in `utils.py:87-98`.
 
-23. [WARN] **Spec/documentation mismatch: repository contains `spec.md` but spec file structure lists `SPEC.md`.**  
-    - Impact: tooling or contributors expecting `SPEC.md` may fail to find it.  
-    - Evidence: actual file is `spec.md` in workspace; listed as `SPEC.md` in `spec.md:89`.
+23. [PASS] **Spec/documentation filename mismatch is resolved in workspace.**  
+    - Impact resolved: both `spec.md` and `SPEC.md` are present, so tooling expecting either name can locate the spec.  
+    - Evidence: repository now contains `spec.md` and `SPEC.md`.
 
 24. [PASS] **Basic code health check: all Python modules compile successfully.**  
     - Evidence: `python3 -m py_compile main.py auth.py quiz.py utils.py` completed with no syntax errors.
