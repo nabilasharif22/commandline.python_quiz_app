@@ -9,6 +9,21 @@
       "difficulty": "easy"
     },
     {
+      "question": "Which symbol starts a comment in Python?",
+      "type": "multiple_choice",
+      "options": ["//", "#", "--", "/*"],
+      "answer": "#",
+      "category": "Python Basics",
+      "difficulty": "easy"
+    },
+    {
+      "question": "Python is case-sensitive.",
+      "type": "true_false",
+      "answer": "true",
+      "category": "Python Basics",
+      "difficulty": "easy"
+    },
+    {
       "question": "A list in Python is immutable.",
       "type": "true_false",
       "answer": "false",
@@ -23,10 +38,54 @@
       "difficulty": "easy"
     },
     {
+      "question": "Which data type stores key-value pairs in Python?",
+      "type": "multiple_choice",
+      "options": ["list", "tuple", "dictionary", "set"],
+      "answer": "dictionary",
+      "category": "Data Structures",
+      "difficulty": "easy"
+    },
+    {
+      "question": "A tuple can be modified after creation.",
+      "type": "true_false",
+      "answer": "false",
+      "category": "Data Structures",
+      "difficulty": "easy"
+    },
+    {
+      "question": "What does IDE stand for?",
+      "type": "short_answer",
+      "answer": "integrated development environment",
+      "category": "Concepts",
+      "difficulty": "easy"
+    },
+    {
+      "question": "Compilation always happens before execution in Python.",
+      "type": "true_false",
+      "answer": "false",
+      "category": "Concepts",
+      "difficulty": "easy"
+    },
+    {
       "question": "What does OOP stand for?",
       "type": "short_answer",
       "answer": "object oriented programming",
       "category": "Concepts",
+      "difficulty": "medium"
+    },
+    {
+      "question": "What keyword handles exceptions in Python?",
+      "type": "short_answer",
+      "answer": "try",
+      "category": "Python Basics",
+      "difficulty": "medium"
+    },
+    {
+      "question": "Which keyword is used to create an anonymous function?",
+      "type": "multiple_choice",
+      "options": ["map", "lambda", "anon", "func"],
+      "answer": "lambda",
+      "category": "Python Basics",
       "difficulty": "medium"
     },
     {
@@ -36,6 +95,72 @@
       "answer": "Queue",
       "category": "Data Structures",
       "difficulty": "medium"
+    },
+    {
+      "question": "Which set operation gives common elements?",
+      "type": "multiple_choice",
+      "options": ["union", "intersection", "difference", "symmetric_difference"],
+      "answer": "intersection",
+      "category": "Data Structures",
+      "difficulty": "medium"
+    },
+    {
+      "question": "In Big-O notation, binary search runs in O(log n).",
+      "type": "true_false",
+      "answer": "true",
+      "category": "Concepts",
+      "difficulty": "medium"
+    },
+    {
+      "question": "What principle says a subclass should be usable wherever a superclass is expected?",
+      "type": "short_answer",
+      "answer": "liskov substitution principle",
+      "category": "Concepts",
+      "difficulty": "medium"
+    },
+    {
+      "question": "Which method customizes object string representation for users?",
+      "type": "multiple_choice",
+      "options": ["__repr__", "__str__", "__format__", "__name__"],
+      "answer": "__str__",
+      "category": "Python Basics",
+      "difficulty": "hard"
+    },
+    {
+      "question": "A generator function uses which keyword to return values lazily?",
+      "type": "short_answer",
+      "answer": "yield",
+      "category": "Python Basics",
+      "difficulty": "hard"
+    },
+    {
+      "question": "Which structure is best for checking membership in average O(1) time?",
+      "type": "multiple_choice",
+      "options": ["list", "set", "tuple", "array"],
+      "answer": "set",
+      "category": "Data Structures",
+      "difficulty": "hard"
+    },
+    {
+      "question": "A heap always keeps the largest element at the root in every implementation.",
+      "type": "true_false",
+      "answer": "false",
+      "category": "Data Structures",
+      "difficulty": "hard"
+    },
+    {
+      "question": "What design principle is described by the acronym DRY?",
+      "type": "short_answer",
+      "answer": "dont repeat yourself",
+      "category": "Concepts",
+      "difficulty": "hard"
+    },
+    {
+      "question": "Encapsulation in OOP means bundling data and methods together.",
+      "type": "true_false",
+      "answer": "true",
+      "category": "Concepts",
+      "difficulty": "hard"
     }
   ]
 }
